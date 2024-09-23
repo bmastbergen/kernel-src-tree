@@ -1748,7 +1748,7 @@ cat rheldup3.pem rhelkpatch1.pem rhelimaca1.pem nvidiagpuoot001.pem >> ../certs/
 for i in *.config; do
   sed -i 's@CONFIG_SYSTEM_TRUSTED_KEYS=""@CONFIG_SYSTEM_TRUSTED_KEYS="certs/rhel.pem"@' $i
 done
-%endif # rhelkeys
+%endif
 %if %{signkernel}
 %ifarch s390x ppc64le
 openssl x509 -inform der -in %{secureboot_ca_0} -out secureboot.pem
@@ -1756,9 +1756,9 @@ cat secureboot.pem >> ../certs/rhel.pem
 for i in *.config; do
   sed -i 's@CONFIG_SYSTEM_TRUSTED_KEYS=""@CONFIG_SYSTEM_TRUSTED_KEYS="certs/rhel.pem"@' $i
 done
-%endif # ifarch s390x ppc64le
-%endif # signkernel
-%endif # ?rhel
+%endif
+%endif
+%endif
 
 # Adjust FIPS module name for RHEL
 %if 0%{?rhel}
