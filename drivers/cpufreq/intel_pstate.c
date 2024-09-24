@@ -300,6 +300,7 @@ static struct cpufreq_driver *intel_pstate_driver __read_mostly;
 
 #define HYBRID_SCALING_FACTOR		78741
 #define HYBRID_SCALING_FACTOR_MTL	80000
+#define HYBRID_SCALING_FACTOR_LNL	86957
 
 static int hybrid_scaling_factor = HYBRID_SCALING_FACTOR;
 
@@ -2403,6 +2404,7 @@ static const struct x86_cpu_id intel_pstate_cpu_oob_ids[] __initconst = {
 	X86_MATCH(SKYLAKE_X,		core_funcs),
 	X86_MATCH(ICELAKE_X,		core_funcs),
 	X86_MATCH(SAPPHIRERAPIDS_X,	core_funcs),
+	X86_MATCH(EMERALDRAPIDS_X,	core_funcs),
 	{}
 };
 #endif
@@ -3387,12 +3389,16 @@ static const struct x86_cpu_id intel_epp_default[] = {
 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_L, HWP_SET_DEF_BALANCE_PERF_EPP(102)),
 	X86_MATCH_INTEL_FAM6_MODEL(SAPPHIRERAPIDS_X, HWP_SET_DEF_BALANCE_PERF_EPP(32)),
 	X86_MATCH_INTEL_FAM6_MODEL(METEORLAKE_L, HWP_SET_EPP_VALUES(HWP_EPP_POWERSAVE,
-							HWP_EPP_BALANCE_POWERSAVE, 115, 16)),
+							179, 64, 16)),
+	X86_MATCH_VFM(INTEL_ARROWLAKE, HWP_SET_EPP_VALUES(HWP_EPP_POWERSAVE,
+		      179, 64, 16)),
 	{}
 };
 
 static const struct x86_cpu_id intel_hybrid_scaling_factor[] = {
 	X86_MATCH_INTEL_FAM6_MODEL(METEORLAKE_L, HYBRID_SCALING_FACTOR_MTL),
+	X86_MATCH_VFM(INTEL_ARROWLAKE, HYBRID_SCALING_FACTOR_MTL),
+	X86_MATCH_VFM(INTEL_LUNARLAKE_M, HYBRID_SCALING_FACTOR_LNL),
 	{}
 };
 
