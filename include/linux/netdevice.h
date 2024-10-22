@@ -79,6 +79,7 @@ struct udp_tunnel_nic;
 struct bpf_prog;
 struct xdp_buff;
 struct xdp_md;
+struct ethtool_netdev_state;
 
 void synchronize_net(void);
 void netdev_set_default_ethtool_ops(struct net_device *dev,
@@ -2029,8 +2030,6 @@ enum netdev_reg_state {
  *			switch driver and used to set the phys state of the
  *			switch port.
  *
- *	@wol_enabled:	Wake-on-LAN is enabled
- *
  *	@threaded:	napi threaded mode is enabled
  *
  *	@net_notifier_list:	List of per-net netdev notifier block
@@ -2042,6 +2041,7 @@ enum netdev_reg_state {
  *	@udp_tunnel_nic_info:	static structure describing the UDP tunnel
  *				offload capabilities of the device
  *	@udp_tunnel_nic:	UDP tunnel offload state
+ *	@ethtool:	ethtool related state
  *	@xdp_state:		stores info on attached XDP BPF programs
  *
  *	@nested_level:	Used as as a parameter of spin_lock_nested() of
@@ -2421,8 +2421,7 @@ struct net_device {
 	struct sfp_bus		*sfp_bus;
 	struct lock_class_key	*qdisc_tx_busylock;
 	bool			proto_down;
-	unsigned		wol_enabled:1;
-	unsigned		threaded:1;
+	bool			threaded;
 
 	struct list_head	net_notifier_list;
 
@@ -2432,6 +2431,8 @@ struct net_device {
 #endif
 	const struct udp_tunnel_nic_info	*udp_tunnel_nic_info;
 	struct udp_tunnel_nic	*udp_tunnel_nic;
+
+	struct ethtool_netdev_state *ethtool;
 
 	/* protected by rtnl_lock */
 	RH_KABI_EXCLUDE_WITH_SIZE(struct bpf_xdp_entity	xdp_state[__MAX_XDP_MODE], 24)
@@ -2450,6 +2451,9 @@ struct net_device {
 	/** @page_pools: page pools created for this netdevice */
 	struct hlist_head	page_pools;
 #endif
+
+	/** @irq_moder: dim parameters used if IS_ENABLED(CONFIG_DIMLIB). */
+	struct dim_irq_moder	*irq_moder;
 
 	RH_KABI_RESERVE(1)
 	RH_KABI_RESERVE(2)
@@ -3293,6 +3297,10 @@ struct softnet_data {
 #ifdef CONFIG_RPS
 	struct softnet_data	*rps_ipi_list;
 #endif
+
+	bool			in_net_rx_action;
+	bool			in_napi_threaded_poll;
+
 #ifdef CONFIG_NET_FLOW_LIMIT
 	struct sd_flow_limit __rcu *flow_limit;
 #endif
@@ -3327,6 +3335,12 @@ struct softnet_data {
 	struct sk_buff_head	input_pkt_queue;
 	struct napi_struct	backlog;
 
+	/* Another possibly contended cache line */
+	spinlock_t		defer_lock ____cacheline_aligned_in_smp;
+	int			defer_count;
+	int			defer_ipi_scheduled;
+	struct sk_buff		*defer_list;
+	call_single_data_t	defer_csd;
 };
 
 static inline void input_queue_head_incr(struct softnet_data *sd)
@@ -3368,6 +3382,7 @@ static inline void dev_xmit_recursion_dec(void)
 	__this_cpu_dec(softnet_data.xmit.recursion);
 }
 
+void kick_defer_list_purge(struct softnet_data *sd, unsigned int cpu);
 void __netif_schedule(struct Qdisc *q);
 void netif_schedule_queue(struct netdev_queue *txq);
 

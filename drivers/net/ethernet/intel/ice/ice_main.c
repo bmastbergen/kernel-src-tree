@@ -5286,7 +5286,6 @@ err_load:
 	ice_deinit(pf);
 err_init:
 	ice_adapter_put(pdev);
-	pci_disable_device(pdev);
 	return err;
 }
 
@@ -5393,7 +5392,6 @@ static void ice_remove(struct pci_dev *pdev)
 	ice_set_wake(pf);
 
 	ice_adapter_put(pdev);
-	pci_disable_device(pdev);
 }
 
 /**
@@ -8099,12 +8097,9 @@ ice_bridge_setlink(struct net_device *dev, struct nlmsghdr *nlh,
 	if (!br_spec)
 		return -EINVAL;
 
-	nla_for_each_nested(attr, br_spec, rem) {
-		__u16 mode;
+	nla_for_each_nested_type(attr, IFLA_BRIDGE_MODE, br_spec, rem) {
+		__u16 mode = nla_get_u16(attr);
 
-		if (nla_type(attr) != IFLA_BRIDGE_MODE)
-			continue;
-		mode = nla_get_u16(attr);
 		if (mode != BRIDGE_MODE_VEPA && mode != BRIDGE_MODE_VEB)
 			return -EINVAL;
 		/* Continue  if bridge mode is not being flipped */
