@@ -1223,7 +1223,6 @@ This package provides debug information for the bpftool package.
 %package selftests-internal
 Summary: Kernel samples and selftests
 Requires: binutils, bpftool, iproute-tc, nmap-ncat, python3, fuse-libs, keyutils
-Requires: %{name}-modules-internal = %{version}-%{release}
 %if %{with_automotive}
 Conflicts: kernel-selftests-internal
 %else
