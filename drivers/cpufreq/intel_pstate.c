@@ -2261,6 +2261,11 @@ static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
 		} else {
 			cpu->pstate.scaling = perf_ctl_scaling;
 		}
+		/*
+		 * If the CPU is going online for the first time and it was
+		 * offline initially, asym capacity scaling needs to be updated.
+		 */
+		hybrid_update_capacity(cpu);
 	} else {
 		cpu->pstate.scaling = perf_ctl_scaling;
 		cpu->pstate.max_pstate = pstate_funcs.get_max(cpu->cpu);
@@ -3638,6 +3643,8 @@ static const struct x86_cpu_id intel_epp_default[] = {
 	X86_MATCH_VFM(INTEL_ALDERLAKE_L, HWP_SET_DEF_BALANCE_PERF_EPP(102)),
 	X86_MATCH_VFM(INTEL_SAPPHIRERAPIDS_X, HWP_SET_DEF_BALANCE_PERF_EPP(32)),
 	X86_MATCH_VFM(INTEL_EMERALDRAPIDS_X, HWP_SET_DEF_BALANCE_PERF_EPP(32)),
+	X86_MATCH_VFM(INTEL_GRANITERAPIDS_X, HWP_SET_DEF_BALANCE_PERF_EPP(32)),
+	X86_MATCH_VFM(INTEL_GRANITERAPIDS_D, HWP_SET_DEF_BALANCE_PERF_EPP(32)),
 	X86_MATCH_VFM(INTEL_METEORLAKE_L, HWP_SET_EPP_VALUES(HWP_EPP_POWERSAVE,
 							179, 64, 16)),
 	X86_MATCH_VFM(INTEL_ARROWLAKE, HWP_SET_EPP_VALUES(HWP_EPP_POWERSAVE,
