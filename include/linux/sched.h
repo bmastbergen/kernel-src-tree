@@ -15,7 +15,7 @@
 #include <linux/sem.h>
 #include <linux/shm.h>
 #include <linux/kmsan_types.h>
-#include <linux/mutex.h>
+#include <linux/mutex_types.h>
 #include <linux/plist.h>
 #include <linux/hrtimer.h>
 #include <linux/irqflags.h>
@@ -1464,6 +1464,10 @@ struct task_struct {
 
 	/* Used by memcontrol for targeted memcg charge: */
 	RH_KABI_EXCLUDE(struct mem_cgroup *active_memcg)
+#endif
+
+#ifdef CONFIG_MEMCG_KMEM
+	struct obj_cgroup		*objcg;
 #endif
 
 #ifdef CONFIG_BLK_CGROUP
