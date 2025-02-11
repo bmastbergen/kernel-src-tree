@@ -41,7 +41,7 @@ ZSTREAM ?= no
 #
 # Use this spot to avoid future merge conflicts.
 # Do not trim this comment.
-AUTOMOTIVEBUILD:=.511
+AUTOMOTIVEBUILD:=.512
 
 #
 # Early y+1 numbering
