@@ -1,3 +1,13 @@
+* Wed Feb 12 2025 Julio Faracco <jfaracco@redhat.com> [5.14.0-567.515.el9iv]
+- [automotive] build 5.14.0-567.515.el9iv
+- redhat/configs: automotive: Disable MRP/802.1Q VLAN Protocol (Dorinda Bassey) [RHEL-75478]
+- spi: pxa2xx: Add MTP-S, ARL-H, LNL-M support (David Arcari) [RHEL-78311]
+- erofs: promote to full support (Ian Kent) [RHEL-78339]
+- devres: Fix memory leakage caused by driver API devm_free_percpu() (CKI Backport Bot) [RHEL-78016] {CVE-2024-43871}
+- RDMA/cxgb4: Fix RDMA_CM_EVENT_UNREACHABLE error for iWARP (Kamal Heib) [RHEL-75825]
+- RDMA/mlx5: Move events notifier registration to be after device registration (CKI Backport Bot) [RHEL-72349] {CVE-2024-53224}
+Resolves: RHEL-72349, RHEL-75478, RHEL-75825, RHEL-78016, RHEL-78311, RHEL-78339
+
 * Tue Feb 11 2025 Julio Faracco <jfaracco@redhat.com> [5.14.0-566.514.el9iv]
 - [automotive] build 5.14.0-566.514.el9iv
 - redhat/configs: automotive: Disable TIPC Protocol (Dorinda Bassey) [RHEL-75140]
