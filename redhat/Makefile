@@ -773,41 +773,15 @@ distg-brew distg-koji: distg-%: dist-vr-check
 distg-cbs: distg-%: dist-vr-check
 	$* $(BUILD_PROFILE) build $(BUILD_FLAGS) --scratch $(BUILD_TARGET) "$(CSGITURL)/$(PACKAGE_NAME).git#$(RHGITCOMMIT)"
 
-dist-automotive-release-changed: setup-source
-	@cp $(SOURCES)/$(SPECCHANGELOG) $(REDHAT)/$(SPECCHANGELOG)
-	@echo $(MARKER) > $(REDHAT)/marker
-	@# if neither changelog nor marker was updated, skip bumping a release
-	@$(GIT) update-index -q --really-refresh
-	@if $(GIT) diff-index --quiet HEAD; then \
-		echo "Nothing changed, skipping updates"; \
-	else \
-		$(GIT) checkout -- $(REDHAT)/$(SPECCHANGELOG); \
-		$(REDHAT)/scripts/new_release.sh; \
-	fi
-
-dist-automotive-git:
+dist-automotive-git: dist-srpm
 	$(REDHAT)/scripts/automotive-dist-git.sh "$(AUTOMOTIVE_BRANCH)" "$(RHDISTGIT_TMP)" "$(TARBALL)" "$(PACKAGE_NAME)"
 
 dist-automotive-git-test: export RH_DIST_GIT_TEST="1"
 dist-automotive-git-test: dist-automotive-git
 
-dist-automotive-release: dist-clean-sources
-	@# generate new version
-	@$(MAKE) dist-automotive-release-changed
-	@$(MAKE) dist-sources
-	@# if no changes were made then we don't need to update the repos
-	@if $(GIT) diff-index --quiet HEAD; then \
-		echo "No changes, nothing to commit"; \
-	else \
-		echo "Update dist-git"; \
-		$(MAKE) dist-automotive-git; \
-		echo "Commit source-git changes"; \
-		$(MAKE) dist-release-finish; \
-	fi
-
-dist-automotive-rtg: dist-automotive-release
+dist-automotive-rtg: dist-release
 	@$(MAKE) dist-release-tag
-	# Dist-git is not required. Automotive has a different one.
+	@$(MAKE) dist-automotive-git
 
 .PHONY: $(REDHAT)/rpm/SOURCES/$(SPECFILE)
 $(REDHAT)/rpm/SOURCES/$(SPECFILE):

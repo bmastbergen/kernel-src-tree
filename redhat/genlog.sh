@@ -30,7 +30,6 @@ cname="$(git var GIT_COMMITTER_IDENT |sed 's/>.*/>/')"
 cdate="$(LC_ALL=C date +"%a %b %d %Y")"
 cversion="[$DISTBASEVERSION]";
 echo "* $cdate $cname $cversion" > "$clogf"
-echo "- [automotive] build $DISTBASEVERSION" >> "$clogf"
 
 git log --topo-order --no-merges -z "$GIT_NOTES" "$GIT_FORMAT" \
 	^"${UPSTREAM}" "$lasttag".. -- ':!/redhat/rhdocs' | "${0%/*}"/genlog.py >> "$clogf"
