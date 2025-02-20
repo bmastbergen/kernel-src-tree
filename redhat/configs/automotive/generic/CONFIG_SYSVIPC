@@ -1,1 +1,1 @@
-# CONFIG_SYSVIPC is not set
+CONFIG_SYSVIPC=y
