@@ -278,7 +278,7 @@ else ifeq ("$(DISTRO)", "centos")
   DISTBASEVERSION:=$(BASEVERSION)$(DIST)
   PATCHLIST_URL:=none
 else
-  RHDISTGIT_BRANCH:=rhel-$(RHEL_MAJOR).$(RHEL_MINOR).0
+  RHDISTGIT_BRANCH:=$(AUTOMOTIVE_BRANCH)
   ifndef BUILD_TARGET
     ifeq ("$(DIST)", ".eln")
       BUILD_TARGET:=eln
