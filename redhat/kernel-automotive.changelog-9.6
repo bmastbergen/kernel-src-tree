@@ -1,3 +1,11 @@
+* Tue Mar 04 2025 Scott Weaver <scweaver@redhat.com> [5.14.0-570.519.el9iv]
+- redhat/configs: automotive: Disable CONFIG_FS_DAX config (Dorinda Bassey) [RHEL-76304]
+- Revert "Merge: redhat/configs: automotive: Disable SYSIPC and POSIX_MQUEUE config" (Dorinda Bassey) [RHEL-80981]
+- redhat/configs: automotive: set CONFIG_TIMEOUT_PANIC (Enric Balletbo i Serra) [RHEL-76013]
+- redhat/configs: make modular/disable NFS support (Dorinda Bassey) [RHEL-73720]
+- redhat/configs: automotive: Disable SCTP Protocol (Dorinda Bassey) [RHEL-74395]
+Resolves: RHEL-73720, RHEL-74395, RHEL-76013, RHEL-76304, RHEL-80981
+
 * Tue Feb 18 2025 Julio Faracco <jfaracco@redhat.com> [5.14.0-570.518.el9iv]
 - redhat: automotive: Clean up some old Makefile structures for automotive (Julio Faracco)
 - rhel-9: gate on kernel-qe tests results not cki ones (Bruno Goncalves)
