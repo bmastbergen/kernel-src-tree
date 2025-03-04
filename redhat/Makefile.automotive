@@ -2,4 +2,4 @@
 CSGITURL ?= git+https://gitlab.com/centos/automotive/rpms/
 
 # Define the default automotive branch (dist-git)
-AUTOMOTIVE_BRANCH:="c$(RHEL_MAJOR)s-sig-automotive-main"
+AUTOMOTIVE_BRANCH:=rhivos-1.0.0

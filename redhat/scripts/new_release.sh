@@ -6,9 +6,17 @@ fi
 
 if [ "${AUTOMOTIVEBUILD}" != "" ]; then
         AUTOMOTIVEBUILD=$(sed -n -e 's/^AUTOMOTIVEBUILD:=\.\(.*\)/\1/p' "$REDHAT"/../Makefile.rhelver);
-	AUTOMOTIVEBUILD="$((AUTOMOTIVEBUILD + 1))";
-	sed -i -e "s/^AUTOMOTIVEBUILD:=.*$/AUTOMOTIVEBUILD:=.$AUTOMOTIVEBUILD/" "$REDHAT"/../Makefile.rhelver;
-	echo "AUTOMOTIVEBUILD set to ${AUTOMOTIVEBUILD}"
+	AUTOMOTIVE_RELEASE=$(sed -n -e 's/^AUTOMOTIVE_RELEASE:=\.\(.*\)/\1/p' "$REDHAT"/../Makefile.rhelver);
+	if [ "$ZSTREAM_FLAG" == "yes" ]; then
+		AUTOMOTIVE_RELEASE="$((AUTOMOTIVE_RELEASE + 1))";
+		sed -i -e "s/^AUTOMOTIVE_RELEASE:=.*$/AUTOMOTIVE_RELEASE:=.$AUTOMOTIVE_RELEASE/" "$REDHAT"/../Makefile.rhelver;
+		echo "AUTOMOTIVE_RELEASE set to ${AUTOMOTIVE_RELEASE}"
+	else
+		AUTOMOTIVEBUILD="$((AUTOMOTIVEBUILD + 1))";
+		sed -i -e "s/^AUTOMOTIVEBUILD:=.*$/AUTOMOTIVEBUILD:=.$AUTOMOTIVEBUILD/" "$REDHAT"/../Makefile.rhelver;
+		echo "AUTOMOTIVEBUILD set to ${AUTOMOTIVEBUILD}"
+	fi
+	# exit - do not increment the RHEL release fields
 	exit 0
 fi
 

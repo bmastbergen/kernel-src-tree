@@ -21,7 +21,20 @@ fi
 
 # The SPECRELEASE variable uses the SPECBUILDID variable which is
 # defined above.  IOW, don't remove SPECBUILDID ;)
-SPECRELEASE=${UPSTREAMBUILD}${BUILD}${AUTOMOTIVEBUILD}"%{?buildid}%{?dist}"
+
+RELEASE=$(sed -n -e 's/^RHEL_RELEASE\ =\ \(.*\)/\1/p' "$REDHAT"/../Makefile.rhelver)
+# automotive zstream versioning requires special handling
+if [ "$ZSTREAM_FLAG" == "yes" ]; then
+	YVER=$(echo "$RELEASE" | cut -d "." -f 1)
+	YVER=${YVER:="$RELEASE"}
+	ZMAJ=$(echo "$RELEASE" | cut -s -d "." -f 2)
+	ZMAJ=.${ZMAJ:=0}
+	ZMIN=$(echo "$RELEASE" | cut -s -d "." -f 3)
+	ZMIN=.${ZMIN:=0}
+	SPECRELEASE=${UPSTREAMBUILD}${YVER}${AUTOMOTIVEBUILD}${ZMAJ}${ZMIN}${AUTOMOTIVE_RELEASE}"%{?buildid}%{?dist}"
+else
+	SPECRELEASE=${UPSTREAMBUILD}${BUILD}${AUTOMOTIVEBUILD}"%{?buildid}%{?dist}"
+fi
 
 EXCLUDE_FILES=":(exclude,top).get_maintainer.conf \
 		:(exclude,top).gitattributes \
