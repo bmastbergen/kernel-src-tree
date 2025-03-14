@@ -1,3 +1,15 @@
+* Fri Mar 14 2025 Scott Weaver <scweaver@redhat.com> [5.14.0-570.518.4.1.4.el9_6iv]
+- Revert "Merge: redhat/configs: automotive: Disable 802.1Q VLAN Protocol" (Dorinda Bassey) [RHEL-80477]
+- redhat/configs: automotive: Disable CONFIG_FS_DAX config (Dorinda Bassey) [RHEL-82240]
+- rhel_files: ensure all qdiscs are in modules-core (Davide Caratti) [RHEL-79818]
+- Revert "mm: add vma_has_recency()" (Luiz Capitulino) [RHEL-80655]
+- Revert "mm: support POSIX_FADV_NOREUSE" (Luiz Capitulino) [RHEL-80655]
+- phy: tegra: xusb: reset VBUS & ID OVERRIDE (Rupinderjit Singh) [RHEL-80628]
+- smb: client: fix chmod(2) regression with ATTR_READONLY (Jay Shin) [RHEL-80527 RHEL-78507]
+- scsi: megaraid_sas: Fix for a potential deadlock (Tomas Henzl) [RHEL-21980] {CVE-2024-57807}
+- scsi: core: Fix command pass through retry regression (Ewan D. Milne) [RHEL-77122]
+Resolves: RHEL-80477, RHEL-82240
+
 * Fri Mar 07 2025 Scott Weaver <scweaver@redhat.com> [5.14.0-570.518.3.1.3.el9_6iv]
 - Revert "redhat: set aarch64 variants of kernel-rt as Tech Preview" (Scott Weaver) [RHEL-80671]
 - fs/proc: fix softlockup in __read_vmcore (part 2) (Baoquan He) [RHEL-79112] {CVE-2025-21694}
