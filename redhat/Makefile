@@ -30,9 +30,6 @@ ifneq (,$(findstring n,$(firstword -$(MAKEFLAGS))))
   RHTEST=1
 endif
 
-# This is for automotive kernel
-include Makefile.automotive
-
 LANG=C
 
 ifndef RHSELFTESTDATA
@@ -47,6 +44,9 @@ endif
 
 REDHAT:=$(TOPDIR)/redhat
 include $(TOPDIR)/Makefile.rhelver
+
+# This is for automotive kernel
+include Makefile.automotive
 
 ifndef RHDISTDATADIR
   RHDISTDATADIR=${REDHAT}/self-test/data
