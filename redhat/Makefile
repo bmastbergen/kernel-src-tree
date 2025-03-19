@@ -63,6 +63,13 @@ SPECKEXTRAVERSION:=$(shell $(GIT) show $(HEAD):Makefile | sed -ne '/^EXTRAVERSIO
 GITID:= $(shell $(GIT) log --max-count=1 --pretty=format:%H $(HEAD))
 ifndef RHSELFTESTDATA
   BUILD:=$(RHEL_RELEASE)
+  # For automotive zstream we need to rearrange the version
+  ifeq ("$(ZSTREAM)", "yes")
+    VER_WORDS := $(subst ., ,$(RHEL_RELEASE))
+    YVER := $(word 1, $(VER_WORDS))
+    ZMAJ := .$(word 2, $(VER_WORDS))
+    ZMIN := .$(word 3, $(VER_WORDS))
+  endif
 endif
 FLAVOR=
 CURARCH := $(shell uname -m)
@@ -230,7 +237,12 @@ endif
 # $(PACKAGE_NAME)-$(BASEVERSION)                                                            $(DIST)
 # $(RELEASETAG)                                                                             $(DIST)
 #
-SPECBUILD:=$(UPSTREAMBUILD)$(BUILD)$(AUTOMOTIVEBUILD)$(DISTLOCALVERSION)
+# For automotive zstream we need to rearrange the version
+ifeq ("$(ZSTREAM)", "yes")
+  SPECBUILD:=$(UPSTREAMBUILD)$(YVER)$(AUTOMOTIVEBUILD)$(ZMAJ)$(ZMIN)$(AUTOMOTIVE_RELEASE)$(DISTLOCALVERSION)
+else
+  SPECBUILD:=$(UPSTREAMBUILD)$(BUILD)$(AUTOMOTIVEBUILD)$(DISTLOCALVERSION)
+endif
 SPECVERSION:=$(SPECKVERSION).$(SPECKPATCHLEVEL).$(SPECKSUBLEVEL)
 BASEVERSION:=$(SPECVERSION)-$(SPECBUILD)
 RELEASETAG:=$(PACKAGE_NAME)-$(BASEVERSION)
@@ -266,7 +278,7 @@ else ifeq ("$(DISTRO)", "centos")
   DISTBASEVERSION:=$(BASEVERSION)$(DIST)
   PATCHLIST_URL:=none
 else
-  RHDISTGIT_BRANCH:=rhel-$(RHEL_MAJOR).$(RHEL_MINOR).0
+  RHDISTGIT_BRANCH:=$(AUTOMOTIVE_BRANCH)
   ifndef BUILD_TARGET
     ifeq ("$(DIST)", ".eln")
       BUILD_TARGET:=eln
