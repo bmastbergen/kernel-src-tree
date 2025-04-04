@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: rockylinux:9
     strategy:
       matrix:
          include:
@@ -30,6 +32,10 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Install git
+        run: |
+          dnf install -y git
 
       - name: Sync kernel source
         run: |
