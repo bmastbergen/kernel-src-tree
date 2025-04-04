@@ -53,7 +53,6 @@ jobs:
           git remote add upstream ${REMOTE}
           git fetch upstream --quiet
           git rebase upstream/${REMOTE_BRANCH}
-          git show
-          #git push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}"
+          git push origin --follow-tags
 
 
