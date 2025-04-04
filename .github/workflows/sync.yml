@@ -48,10 +48,10 @@ jobs:
           git -C kernel config user.email "github-actions[bot]@users.noreply.github.com"
 
           git -C kernel remote add upstream ${REMOTE}
-          git -C kernel fetch upstream
+          git -C kernel fetch upstream --quiet
           git -C kernel push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}"
 
           git -C kernel tag -d $(git -C kernel tag -l) > /dev/null
-          git -C kernel fetch upstream --tags
+          git -C kernel fetch upstream --tags --quiet
           git -C kernel push origin --tags
 
