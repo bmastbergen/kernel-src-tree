@@ -1,0 +1,41 @@
+name: Kernel Build
+
+on:
+  #schedule:
+  #  - cron: "0 0 * * 0"
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    #runs-on: kernel-build-lol
+    container:
+     # image: rockylinux:9
+      image: ubuntu-latest
+     # options: --privileged
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+          - kernel-mainline
+        #  - longterm-6.12
+        #  - longterm-6.6
+        #  - longterm-6.1
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      VARIANT: ${{ matrix.variant }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Build
+        run: |
+          set -e
+          
+          #dnf install -y mock rpm-build rpm-sign mtn-partner golang git
+          
+          git clone "https://oauth2:$GITHUB_TOKEN@github.com/ctrliq/kernel-src-tree" kernel
+          git -C kernel config user.name "github-actions[bot]"
+          git -C kernel config user.email "github-actions[bot]@users.noreply.github.com"
+          git -C kernel remote add upstream git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+          git -C kernel fetch upstream --tags
+          git -C kernel push origin "refs/remotes/upstream/master:refs/heads/${VARIANT}"
+          
