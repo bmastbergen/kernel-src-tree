@@ -1,32 +1,30 @@
-name: Kernel Build
+name: Kernel Sync
 
 on:
   #schedule:
   #  - cron: "0 0 * * 0"
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 jobs:
   build:
-    #runs-on: kernel-build-lol
-    container:
-     # image: rockylinux:9
-      image: ubuntu-latest
-     # options: --privileged
+    runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         variant:
           - kernel-mainline
         #  - longterm-6.12
         #  - longterm-6.6
         #  - longterm-6.1
+
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       VARIANT: ${{ matrix.variant }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Build
+
+      - name: Sync kernel source
         run: |
           set -e
           
