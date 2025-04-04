@@ -30,7 +30,8 @@ jobs:
           
           #dnf install -y mock rpm-build rpm-sign mtn-partner golang git
           
-          git clone "https://oauth2:$GITHUB_TOKEN@github.com/ctrliq/kernel-src-tree" kernel
+          #git clone "https://oauth2:$GITHUB_TOKEN@github.com/ctrliq/kernel-src-tree" kernel
+          git clone "https://oauth2:$GITHUB_TOKEN@github.com/bmastbergen/kernel-src-tree" kernel
           git -C kernel config user.name "github-actions[bot]"
           git -C kernel config user.email "github-actions[bot]@users.noreply.github.com"
           git -C kernel remote add upstream git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
