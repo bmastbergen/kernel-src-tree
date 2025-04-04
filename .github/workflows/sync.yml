@@ -51,7 +51,7 @@ jobs:
           git -C kernel fetch upstream
           git -C kernel push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}"
 
-          git -C kernel -d $(git -C kernel tag -l) > /dev/null
+          git -C kernel tag -d $(git -C kernel tag -l) > /dev/null
           git -C kernel fetch upstream --tags
           git -C kernel origin --tags
 
