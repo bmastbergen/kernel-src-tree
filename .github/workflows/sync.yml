@@ -51,10 +51,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git remote add upstream ${REMOTE}
-          git fetch upstream --quiet
-          git push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}"
+          git fetch upstream --all --quiet
+          git rebase upstream/${REMOTE_BRANCH}
+          git show
+          #git push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}"
 
-          git tag -d $(git tag -l) > /dev/null
-          git fetch upstream --tags --quiet
-          git push origin --tags
 
