@@ -48,5 +48,5 @@ jobs:
 
           git -C kernel remote add upstream ${REMOTE}
           git -C kernel fetch upstream --tags
-          git -C kernel push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}"
+          git -C kernel push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}" --follow-tags
 
