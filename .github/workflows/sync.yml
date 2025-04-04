@@ -42,16 +42,19 @@ jobs:
         run: |
           set -e
           
-          #git clone "https://oauth2:$GITHUB_TOKEN@github.com/ctrliq/kernel-src-tree" kernel
-          git clone "https://oauth2:$GITHUB_TOKEN@github.com/bmastbergen/kernel-src-tree" kernel
-          git -C kernel config user.name "github-actions[bot]"
-          git -C kernel config user.email "github-actions[bot]@users.noreply.github.com"
+          #git clone --branch ${BRANCH} "https://oauth2:$GITHUB_TOKEN@github.com/ctrliq/kernel-src-tree" kernel
+          git clone --branch ${BRANCH} "https://oauth2:$GITHUB_TOKEN@github.com/bmastbergen/kernel-src-tree" kernel
 
-          git -C kernel remote add upstream ${REMOTE}
-          git -C kernel fetch upstream --quiet
-          git -C kernel push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}"
+          cd kernel
 
-          git -C kernel tag -d $(git -C kernel tag -l) > /dev/null
-          git -C kernel fetch upstream --tags --quiet
-          git -C kernel push origin --tags
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git remote add upstream ${REMOTE}
+          git fetch upstream --quiet
+          git push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}"
+
+          git tag -d $(git tag -l) > /dev/null
+          git fetch upstream --tags --quiet
+          git push origin --tags
 
