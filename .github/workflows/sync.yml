@@ -14,12 +14,18 @@ jobs:
            - branch: kernel-mainline
              remote: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
              remote_branch: master
-#        variant:
-#          - kernel-mainline
+           - branch: stable_6.12.y
+             remote: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+             remote_branch: linux-6.12.y
+           - branch: centos9
+             remote: https://gitlab.com/redhat/centos-stream/src/kernel/centos-stream-9
+             remote_branch: main
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      VARIANT: ${{ matrix.variant }}
+      BRANCH: ${{ matrix.branch }}
+      REMOTE: ${{ matrix.remote }}
+      REMOTE_BRANCH: ${{ matrix.remote_branch }}
 
     steps:
       - name: Check out repository
@@ -29,18 +35,12 @@ jobs:
         run: |
           set -e
           
-          #dnf install -y mock rpm-build rpm-sign mtn-partner golang git
-          
           #git clone "https://oauth2:$GITHUB_TOKEN@github.com/ctrliq/kernel-src-tree" kernel
           git clone "https://oauth2:$GITHUB_TOKEN@github.com/bmastbergen/kernel-src-tree" kernel
           git -C kernel config user.name "github-actions[bot]"
           git -C kernel config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git -C kernel remote add upstream ${{ matrix.remote }}
+          git -C kernel remote add upstream ${REMOTE}
           git -C kernel fetch upstream --tags
-          git -C kernel push origin "refs/remotes/upstream/${{ matrix.remote_branch }}:refs/heads/${{ matrix.branch }}"
+          git -C kernel push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}"
 
-          #git -C kernel remote add upstream git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-          #git -C kernel fetch upstream --tags
-          #git -C kernel push origin "refs/remotes/upstream/master:refs/heads/${VARIANT}"
-          
