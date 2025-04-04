@@ -11,6 +11,7 @@ jobs:
     container:
       image: rockylinux:9
     strategy:
+      fail-fast: false
       matrix:
          include:
            - branch: kernel-mainline
@@ -47,6 +48,10 @@ jobs:
           git -C kernel config user.email "github-actions[bot]@users.noreply.github.com"
 
           git -C kernel remote add upstream ${REMOTE}
+          git -C kernel fetch upstream
+          git -C kernel push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}"
+
+          git -C kernel -d $(git -C kernel tag -l) > /dev/null
           git -C kernel fetch upstream --tags
-          git -C kernel push origin "refs/remotes/upstream/${REMOTE_BRANCH}:refs/heads/${BRANCH}" --follow-tags
+          git -C kernel origin --tags
 
