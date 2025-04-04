@@ -53,5 +53,5 @@ jobs:
 
           git -C kernel tag -d $(git -C kernel tag -l) > /dev/null
           git -C kernel fetch upstream --tags
-          git -C kernel origin --tags
+          git -C kernel push origin --tags
 
