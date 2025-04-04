@@ -10,11 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        variant:
-          - kernel-mainline
-        #  - longterm-6.12
-        #  - longterm-6.6
-        #  - longterm-6.1
+         include:
+           - branch: kernel-mainline
+             remote: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+             remote_branch: master
+#        variant:
+#          - kernel-mainline
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -34,7 +35,12 @@ jobs:
           git clone "https://oauth2:$GITHUB_TOKEN@github.com/bmastbergen/kernel-src-tree" kernel
           git -C kernel config user.name "github-actions[bot]"
           git -C kernel config user.email "github-actions[bot]@users.noreply.github.com"
-          git -C kernel remote add upstream git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+
+          git -C kernel remote add upstream ${{ matrix.remote }}
           git -C kernel fetch upstream --tags
-          git -C kernel push origin "refs/remotes/upstream/master:refs/heads/${VARIANT}"
+          git -C kernel push origin "refs/remotes/upstream/${{ matrix.remote_branch }}:refs/heads/${{ matrix.branch }}"
+
+          #git -C kernel remote add upstream git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+          #git -C kernel fetch upstream --tags
+          #git -C kernel push origin "refs/remotes/upstream/master:refs/heads/${VARIANT}"
           
