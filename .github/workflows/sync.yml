@@ -40,15 +40,9 @@ jobs:
         with:
           ref: ${{ env.BRANCH }}
 
-
-
-
-#          path: kernel-src-tree-${{ env.BRANCH }}
-
       - name: Sync kernel source
         run: |
           set -e
-#          cd kernel-src-tree-${BRANCH}
           ls
           echo
           echo
