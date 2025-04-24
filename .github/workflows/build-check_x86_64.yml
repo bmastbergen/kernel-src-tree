@@ -8,10 +8,10 @@ on:
 jobs:
   kernel-build-job:
     runs-on:
-      labels: kernel-build
+      labels: ubuntu-latest
     container:
       image: centos:7
-      options: --cpus 8
+      options: --cpus 4
     steps:
       - name: Point yum to vault
         run: |
@@ -28,7 +28,7 @@ jobs:
 
       - name: Checkout code
         run: |
-          git clone --branch ${{ github.head_ref }} "https://oauth2:$GITHUB_TOKEN@github.com/ctrliq/kernel-src-tree"
+          git clone --branch ${{ github.head_ref }} "https://oauth2:$GITHUB_TOKEN@github.com/bmastbergen/kernel-src-tree"
 
       - name: Build the Kernel
         working-directory: kernel-src-tree
