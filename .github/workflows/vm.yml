@@ -21,7 +21,7 @@ jobs:
 
       - name: Install tools
         run: |
-          sudo apt-get install bison build-essential cowsay flex libelf-dev libncurses-dev libssl-dev virtme-ng
+          sudo apt-get install bison build-essential cowsay flex libelf-dev libncurses-dev libssl-dev pahole virtme-ng
 
       - name: Run vng
         run: |
