@@ -36,11 +36,22 @@ jobs:
       #    sudo vng -b --config configs/kernel-x86_64-rhel.config
       #    sudo vng --cpus $(nproc) -- uname -r | cowsay
 
-      - name: Install virtme-ng
+      - name: Install tools and Libraries
         run: |
           dnf install epel-release -y
           dnf install qemu-kvm virtme-ng cowsay -y
+          dnf groupinstall 'Development Tools' -y
+          dnf install --enablerepo=crb bc dwarves kernel-devel openssl-devel elfutils-libelf-devel -y
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: "${{ github.event.pull_request.head.sha }}"
+          fetch-depth: 0
 
       - name: Run vng
         run: |
+          sed -i 's/set_page_dirty = v9fs_set_page_dirty/dirty_folio = v9fs_dirty_folio/g' fs/9p/vfs_addr.c
+          sed -i 's/v9fs_set_page_dirty __set_page_dirty_nobuffers/v9fs_dirty_folio filemap_dirty_folio/g' fs/9p/vfs_addr.c
+          vng -b --config/kernel-x86_64-rhel.config
           vng -r --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm -- uname -r | cowsay
