@@ -7,8 +7,7 @@ on:
 
 jobs:
   vm-test:
-    runs-on:
-      labels: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Enable KVM
         run: |
