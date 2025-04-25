@@ -53,5 +53,5 @@ jobs:
         run: |
           sed -i 's/set_page_dirty = v9fs_set_page_dirty/dirty_folio = v9fs_dirty_folio/g' fs/9p/vfs_addr.c
           sed -i 's/v9fs_set_page_dirty __set_page_dirty_nobuffers/v9fs_dirty_folio filemap_dirty_folio/g' fs/9p/vfs_addr.c
-          vng -b --config/kernel-x86_64-rhel.config
+          vng -b --config configs/kernel-x86_64-rhel.config
           vng -r --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm -- uname -r | cowsay
