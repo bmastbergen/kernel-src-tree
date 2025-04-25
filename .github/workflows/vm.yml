@@ -39,7 +39,7 @@ jobs:
       - name: Install virtme-ng
         run: |
           dnf install epel-release -y
-          dnf install virtme-ng cowsay -y
+          dnf install qemu-kvm virtme-ng cowsay -y
 
       - name: Run vng
         run: |
