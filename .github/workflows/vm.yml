@@ -20,4 +20,4 @@ jobs:
 
       - name: Run vng
         run: |
-          sudo vng -r --cpus 8 -- uname -r | cowsay
+          sudo vng -r --cpus $(nproc) -- uname -r | cowsay
