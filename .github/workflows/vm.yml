@@ -43,4 +43,4 @@ jobs:
 
       - name: Run vng
         run: |
-          vng -r --cpus $(nproc) -- uname -r | cowsay
+          vng -r --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm -- uname -r | cowsay
