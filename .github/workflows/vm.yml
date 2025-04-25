@@ -7,11 +7,14 @@ on:
 jobs:
   vm-test:
     runs-on: ubuntu-latest
+    container:
+      image: rockylinux:9
+      options: --cpus 4 --privileged
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          ref: "${{ github.event.pull_request.head.sha }}"
+      #- name: Check out repository
+      #  uses: actions/checkout@v4
+      #  with:
+      #    ref: "${{ github.event.pull_request.head.sha }}"
 
       - name: Enable KVM
         run: |
@@ -19,13 +22,21 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Install tools
+      #- name: Install tools
+      #  run: |
+      #    sudo apt-get install bison build-essential cowsay flex libelf-dev libncurses-dev libssl-dev pahole virtme-ng
+
+      #- name: Run vng
+      #  run: |
+      #    sed -i 's/set_page_dirty = v9fs_set_page_dirty/dirty_folio = v9fs_dirty_folio/g' fs/9p/vfs_addr.c
+      #    sed -i 's/v9fs_set_page_dirty __set_page_dirty_nobuffers/v9fs_dirty_folio filemap_dirty_folio/g' fs/9p/vfs_addr.c
+      #    sudo vng -b --config configs/kernel-x86_64-rhel.config
+      #    sudo vng --cpus $(nproc) -- uname -r | cowsay
+
+      - name: Install virtme-ng
         run: |
-          sudo apt-get install bison build-essential cowsay flex libelf-dev libncurses-dev libssl-dev pahole virtme-ng
+          dnf install virtme-ng cowsay
 
       - name: Run vng
         run: |
-          sed -i 's/set_page_dirty = v9fs_set_page_dirty/dirty_folio = v9fs_dirty_folio/g' fs/9p/vfs_addr.c
-          sed -i 's/v9fs_set_page_dirty __set_page_dirty_nobuffers/v9fs_dirty_folio filemap_dirty_folio/g' fs/9p/vfs_addr.c
-          sudo vng -b --config configs/kernel-x86_64-rhel.config
-          sudo vng --cpus $(nproc) -- uname -r | cowsay
+          vng -r --cpus $(nproc) -- uname -r | cowsay
