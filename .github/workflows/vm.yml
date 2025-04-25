@@ -1,0 +1,22 @@
+name: x86_64 CI
+on:
+  workflow_dispatch: {}
+
+jobs:
+  vm-test:
+    runs-on:
+      labels: ubuntu-latest
+    steps:
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install virtme-ng
+        run: |
+          sudo apt-get install virtme-ng cowsay
+
+      - name: Run vng
+        run: |
+          sudo vng -r --cpus 8 -- uname -r | cowsay
