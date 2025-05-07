@@ -27,7 +27,7 @@ jobs:
 
       #- name: Install tools
       #  run: |
-      #    sudo apt-get install bison build-essential cowsay flex libelf-dev libncurses-dev libssl-dev pahole virtme-ng
+      #    sudo apt-get install bison build-essential cowsay flex libelf-dev libncurses-dev libssl-dev pahole rsync virtme-ng
 
       #- name: Run vng
       #  run: |
@@ -53,6 +53,9 @@ jobs:
         run: |
           sed -i 's/set_page_dirty = v9fs_set_page_dirty/dirty_folio = v9fs_dirty_folio/g' fs/9p/vfs_addr.c
           sed -i 's/v9fs_set_page_dirty __set_page_dirty_nobuffers/v9fs_dirty_folio filemap_dirty_folio/g' fs/9p/vfs_addr.c
-          vng -b --config configs/kernel-x86_64-rhel.config
-          vng --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest | tee selftests.log
+          #vng -b --config configs/kernel-x86_64-rhel.config
+          #vng --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest | tee selftests.log
+          dnf install kernel
+          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest | tee selftests.log
           grep ^ok selftests.log | wc -l
+
