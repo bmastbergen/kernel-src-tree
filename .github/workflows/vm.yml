@@ -43,11 +43,11 @@ jobs:
           dnf groupinstall 'Development Tools' -y
           dnf install --enablerepo=crb bc dwarves kernel-devel openssl-devel elfutils-libelf-devel -y
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: "${{ github.event.pull_request.head.sha }}"
-          fetch-depth: 0
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#        with:
+#          ref: "${{ github.event.pull_request.head.sha }}"
+#          fetch-depth: 0
 
       - name: Run vng
         run: |
