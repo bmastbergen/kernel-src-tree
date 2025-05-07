@@ -41,7 +41,7 @@ jobs:
           dnf install epel-release -y
           dnf install qemu-kvm virtme-ng cowsay -y
           dnf groupinstall 'Development Tools' -y
-          dnf install --enablerepo=crb bc dwarves kernel-devel openssl-devel elfutils-libelf-devel -y
+          dnf install --enablerepo=crb bc dwarves kernel-devel openssl-devel elfutils-libelf-devel rsync -y
 
       - name: Checkout code
         uses: actions/checkout@v4
