@@ -43,19 +43,20 @@ jobs:
           dnf groupinstall 'Development Tools' -y
           dnf install --enablerepo=crb bc dwarves kernel-devel openssl-devel elfutils-libelf-devel -y
 
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#        with:
-#          ref: "${{ github.event.pull_request.head.sha }}"
-#          fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: "${{ github.event.pull_request.head.sha }}"
+          fetch-depth: 0
 
       - name: Run vng
         run: |
-          #sed -i 's/set_page_dirty = v9fs_set_page_dirty/dirty_folio = v9fs_dirty_folio/g' fs/9p/vfs_addr.c
-          #sed -i 's/v9fs_set_page_dirty __set_page_dirty_nobuffers/v9fs_dirty_folio filemap_dirty_folio/g' fs/9p/vfs_addr.c
-          #vng -b --config configs/kernel-x86_64-rhel.config
-          #vng --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest | tee selftests.log
+          sed -i 's/set_page_dirty = v9fs_set_page_dirty/dirty_folio = v9fs_dirty_folio/g' fs/9p/vfs_addr.c
+          sed -i 's/v9fs_set_page_dirty __set_page_dirty_nobuffers/v9fs_dirty_folio filemap_dirty_folio/g' fs/9p/vfs_addr.c
+          vng -b --config configs/kernel-x86_64-rhel.config
+          vng --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest | tee selftests-after.log
           dnf install kernel -y
-          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest | tee selftests.log
-          grep ^ok selftests.log | wc -l
+          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest | tee selftests-before.log
+          grep ^ok selftests-before.log | wc -l
+          grep ^ok selftests-after.log | wc -l
 
