@@ -67,7 +67,7 @@ jobs:
           make olddefconfig
           make headers
           dnf install kernel -y
-          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="bpf capabilities cgroup clone3 cpufreq cpu-hotplug drivers/dma-buf drivers/net/bonding drivers/net/team efivars net x86 zram" | tee selftests-before.log
+          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="bpf capabilities cgroup clone3 cpufreq cpu-hotplug drivers/dma-buf drivers/net/bonding drivers/net/team efivars filesystems filesystems/binderfs filesystems/epoll firmware fpu ftrace gpio hid intel_pstate ipc net x86 zram" | tee selftests-before.log
           grep ^ok selftests-before.log | wc -l
           #grep ^ok selftests-after.log | wc -l
 
