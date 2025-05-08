@@ -54,9 +54,9 @@ jobs:
           sed -i 's/set_page_dirty = v9fs_set_page_dirty/dirty_folio = v9fs_dirty_folio/g' fs/9p/vfs_addr.c
           sed -i 's/v9fs_set_page_dirty __set_page_dirty_nobuffers/v9fs_dirty_folio filemap_dirty_folio/g' fs/9p/vfs_addr.c
           vng -b --config configs/kernel-x86_64-rhel.config
-          vng --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="net x86_64 zram" | tee selftests-after.log
+          vng --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="net x86 zram" | tee selftests-after.log
           dnf install kernel -y
-          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="net x86_64 zram" | tee selftests-before.log
+          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="net x86 zram" | tee selftests-before.log
           grep ^ok selftests-before.log | wc -l
           grep ^ok selftests-after.log | wc -l
 
