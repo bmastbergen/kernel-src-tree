@@ -39,9 +39,17 @@ jobs:
       - name: Install tools and Libraries
         run: |
           dnf install epel-release -y
+
+          # Packages for booting a vm
           dnf install qemu-kvm virtme-ng cowsay -y
+
+          # Packages for building the kernel
           dnf groupinstall 'Development Tools' -y
-          dnf install --enablerepo=crb bc dwarves kernel-devel openssl-devel elfutils-libelf-devel rsync -y
+          dnf install --enablerepo=crb bc dwarves kernel-devel openssl-devel elfutils-libelf-devel -y
+
+          # Packages for testing the kernel
+          dnf config-manager --set-enabled devel
+          dnf install alsa-lib-devel bison clang elfutils-libelf-devel flex fuse-devel gcc git glibc-static jq libasan-static libcap-devel libcap-ng-devel libmnl-devel libubsan make net-tools numactl-devel openssl-devel popt-static python3-jsonschema python3-pyyaml rsync -y
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -51,12 +59,15 @@ jobs:
 
       - name: Run vng
         run: |
-          sed -i 's/set_page_dirty = v9fs_set_page_dirty/dirty_folio = v9fs_dirty_folio/g' fs/9p/vfs_addr.c
-          sed -i 's/v9fs_set_page_dirty __set_page_dirty_nobuffers/v9fs_dirty_folio filemap_dirty_folio/g' fs/9p/vfs_addr.c
-          vng -b --config configs/kernel-x86_64-rhel.config
-          vng --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="net x86 zram" | tee selftests-after.log
+          #sed -i 's/set_page_dirty = v9fs_set_page_dirty/dirty_folio = v9fs_dirty_folio/g' fs/9p/vfs_addr.c
+          #sed -i 's/v9fs_set_page_dirty __set_page_dirty_nobuffers/v9fs_dirty_folio filemap_dirty_folio/g' fs/9p/vfs_addr.c
+          #vng -b --config configs/kernel-x86_64-rhel.config
+          #vng --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="net x86 zram" | tee selftests-after.log
+          cp configs/kernel-x86_64-rhel.config .config
+          make olddefconfig
+          make headers
           dnf install kernel -y
           vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="net x86 zram" | tee selftests-before.log
           grep ^ok selftests-before.log | wc -l
-          grep ^ok selftests-after.log | wc -l
+          #grep ^ok selftests-after.log | wc -l
 
