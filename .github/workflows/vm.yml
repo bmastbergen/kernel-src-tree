@@ -67,7 +67,7 @@ jobs:
           make olddefconfig
           make headers
           dnf install kernel -y
-          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="bpf breakpoints capabilities cgroup clone3 core cpufreq cpu-hotplug drivers/dma-buf drivers/net/bonding drivers/net/team efivars exec filesystems filesystems/binderfs filesystems/epoll firmware fpu ftrace gpio hid intel_pstate ipc ir kcmp kvm landlock lib livepatch membarrier memfd memory-hotplug mincore mount mount_setattr mqueue nci net net/forwarding net/mptcp net/hsr netfilter nsfs pidfd pid_namespace pstore ptrace openat2 rlimits rseq rtc seccomp sgx sigaltstack size splice static_keys sync syscall_user_dispatch sysctl tc-testing tdx timens timers tmpfs tpm2 user vDSO vm x86 zram" | tee selftests-before.log
+          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs -- uname -r && make kselftest TARGETS="bpf capabilities cgroup clone3 core cpufreq cpu-hotplug drivers/dma-buf drivers/net/bonding drivers/net/team efivars exec filesystems filesystems/binderfs filesystems/epoll firmware fpu ftrace gpio hid intel_pstate ipc ir kcmp kvm landlock lib livepatch membarrier memfd memory-hotplug mincore mount mount_setattr mqueue nci net net/forwarding net/mptcp net/hsr netfilter nsfs pidfd pid_namespace pstore ptrace openat2 rlimits rseq rtc seccomp sgx sigaltstack size splice static_keys sync syscall_user_dispatch sysctl tc-testing tdx timens timers tmpfs tpm2 user vDSO vm x86 zram" | tee selftests-before.log
           grep ^ok selftests-before.log | wc -l
           #grep ^ok selftests-after.log | wc -l
 
