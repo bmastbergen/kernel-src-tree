@@ -8,7 +8,7 @@ jobs:
   vm-test:
     runs-on: ubuntu-latest
     container:
-      image: rockylinux:9
+      image: rockylinux:9.2
       options: --cpus 4 --privileged
     steps:
       - name: Install tools and Libraries
