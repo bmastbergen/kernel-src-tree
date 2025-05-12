@@ -24,7 +24,7 @@ jobs:
 
           # Packages for testing the kernel
           dnf config-manager --set-enabled devel
-          dnf install alsa-lib-devel bison clang conntrack-tools elfutils-libelf-devel ethtool flex fuse-devel gcc git glibc-static iperf3 iproute iproute-tc iputils iptables-nft jq libasan-static libcap-devel libcap-ng-devel libmnl-devel libubsan make net-tools nmap-ncat nftables numactl-devel openssl-devel popt-static python3-jsonschema python3-pyyaml rsync socat sudo teamd -y
+          dnf install alsa-lib-devel bison clang conntrack-tools elfutils-libelf-devel ethtool flex fuse-devel gcc git glibc-static iperf3 iproute iproute-tc iputils iptables-nft jq libasan-static libcap-devel libcap-ng-devel libmnl-devel libubsan make net-tools netsniff-ng nmap-ncat nftables numactl-devel openssl-devel popt-static python3-jsonschema python3-pyyaml rsync socat sudo teamd -y
 
       - name: Checkout code
         uses: actions/checkout@v4
