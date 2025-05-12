@@ -51,7 +51,7 @@ jobs:
 
           # Download and test current kernel
           dnf install kernel kernel-tools -y
-          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs --rw -- sh -c 'uname -r && make kselftest SKIP_TARGETS="breakpoints drivers/net/bonding lkdtm proc"' | tee selftests-before.log
+          vng -r /lib/modules/*/vmlinuz --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs --rw -- sh -c 'uname -r && make kselftest SKIP_TARGETS="breakpoints lkdtm proc"' | tee selftests-before.log
 
           # Test our source built kernel
           #vng --cpus $(nproc) --qemu /usr/libexec/qemu-kvm --disable-microvm --force-initramfs --rw -- sh -c 'uname -r && make kselftest SKIP_TARGETS="breakpoints drivers/net/bonding lkdtm proc"' | tee selftests-before.log
