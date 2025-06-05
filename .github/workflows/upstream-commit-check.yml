@@ -1,0 +1,170 @@
+name: Check Upstream Linux Kernel Commits
+
+on:
+  pull_request:
+    branches:
+      - '**'
+      - '!mainline'
+
+jobs:
+  check_upstream_fixes_tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install jq
+        run: |
+          sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Clone Linux Kernel
+        run: |
+          echo "Cloning Linux kernel repository (bare clone, single branch, no blobs) into 'linux' directory..."
+          git clone --bare --filter=blob:none --single-branch https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git linux
+          echo "Cloning complete."
+
+      - name: Get PR commit SHAs via GitHub API
+        id: pr_commits
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for GitHub API authentication
+        run: |
+          PR_COMMITS_JSON=$(curl -sS -H "Accept: application/vnd.github.v3+json" \
+                                -H "Authorization: token $GITHUB_TOKEN" \
+                                "${{ github.event.pull_request.commits_url }}?per_page=100")
+
+          ERROR_MESSAGE=$(echo "$PR_COMMITS_JSON" | jq -r 'if type == "object" and .message then .message else null end')
+          if [ "$ERROR_MESSAGE" != "null" ] && [ -n "$ERROR_MESSAGE" ]; then
+              echo "ERROR: Failed to retrieve PR commits from GitHub API: $ERROR_MESSAGE"
+              echo "API Response snippet: $(echo "$PR_COMMITS_JSON" | head -n 5)"
+              exit 1
+          fi
+
+          COMMITS=$(echo "$PR_COMMITS_JSON" | jq -r 'map(.sha) | join(" ")')
+
+          if [ -z "$COMMITS" ]; then
+              echo "No commits found in this Pull Request via GitHub API. This might indicate an issue with the PR or API."
+              exit 1
+          fi
+
+          echo "PR_COMMITS=${COMMITS}" >> "$GITHUB_OUTPUT"
+
+      - name: Check each PR commit for Linux upstream hash and related Fixes tag
+        id: check_results
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LINUX_KERNEL_REPO_OWNER: torvalds
+          LINUX_KERNEL_REPO_NAME: linux
+        run: |
+          PR_COMMENT_BODY_ACCUMULATOR=""
+
+          # Get the current HEAD commit SHA for the Linux kernel master branch from the local clone
+          echo "Getting current HEAD of '${LINUX_KERNEL_REPO_OWNER}/${LINUX_KERNEL_REPO_NAME}' master branch from local bare clone..."
+
+          HEAD_COMMIT_SHA=$(git -C linux rev-parse master)
+
+          if [ -z "$HEAD_COMMIT_SHA" ]; then
+              echo "ERROR: Could not retrieve HEAD commit for Linux kernel master from local clone."
+              exit 1
+          fi
+
+          echo "Linux kernel master HEAD: ${HEAD_COMMIT_SHA}"
+
+
+          # Loop through each commit SHA identified in the current PR
+          for PR_COMMIT_SHA in ${{ steps.pr_commits.outputs.PR_COMMITS }}; do
+            echo "--- Checking PR commit: ${PR_COMMIT_SHA} ---"
+
+            # --- Fetch the full commit message of the PR commit via GitHub API ---
+            PR_COMMIT_DETAILS_JSON=$(curl -sS -H "Accept: application/vnd.github.v3+json" \
+                                        -H "Authorization: token $GITHUB_TOKEN" \
+                                        "https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/commits/${PR_COMMIT_SHA}")
+
+            ERROR_MESSAGE=$(echo "$PR_COMMIT_DETAILS_JSON" | jq -r 'if type == "object" and .message then .message else null end')
+            if [ "$ERROR_MESSAGE" != "null" ] && [ -n "$ERROR_MESSAGE" ]; then
+                echo "ERROR: Could not retrieve commit message for PR commit ${PR_COMMIT_SHA} from GitHub API: ${ERROR_MESSAGE}"
+                echo "API Response snippet: $(echo "$PR_COMMIT_DETAILS_JSON" | head -n 5)"
+                exit 1
+            fi
+
+            PR_COMMIT_MESSAGE=$(echo "$PR_COMMIT_DETAILS_JSON" | jq -r '.commit.message')
+            # Extract the subject (first line) of the PR commit message
+            PR_COMMIT_SUBJECT=$(echo "$PR_COMMIT_MESSAGE" | head -n 1)
+
+            # Extract the upstream Linux commit hash from the PR commit message.
+            UPSTREAM_LINUX_HASH=$(echo "$PR_COMMIT_MESSAGE" | grep -Eo "^commit [0-9a-f]{40}$" | awk '{print $2}')
+
+            if [ -z "$UPSTREAM_LINUX_HASH" ]; then
+              echo "No 'commit <upstream_linux_commit_hash>' line found in PR commit ${PR_COMMIT_SHA}. Skipping upstream check for this commit."
+              continue # Skip to next PR commit, no comment for this scenario
+            fi
+
+            echo "Found upstream Linux hash to check for fixes: ${UPSTREAM_LINUX_HASH}"
+
+            # --- Check if the upstream hash exists in the local cloned Linux kernel repo ---
+            if ! git -C linux cat-file -e "$UPSTREAM_LINUX_HASH"; then
+                printf -v PR_COMMENT_BODY_ACCUMULATOR "%s- **PR commit \`%s\` - %s**: References upstream commit \`%s\` which was **NOT found** in the Linux kernel repository. Please verify the hash.\n" \
+                  "$PR_COMMENT_BODY_ACCUMULATOR" "$PR_COMMIT_SHA" "$PR_COMMIT_SUBJECT" "$UPSTREAM_LINUX_HASH"
+                continue # Skip to next PR commit, but added message to comment
+            fi
+
+            # --- Search for "Fixes:" tag in upstream Linux kernel using git log ---
+            # Extract the first 12 characters for the short SHA, commonly used in Fixes: tags in Linux kernel.
+            UPSTREAM_LINUX_HASH_SHORT=$(echo "$UPSTREAM_LINUX_HASH" | cut -c 1-12)
+            
+            echo "Searching for upstream commits on 'master' branch in range ${UPSTREAM_LINUX_HASH}..${HEAD_COMMIT_SHA} that fix ${UPSTREAM_LINUX_HASH} using 'git log --grep=\"Fixes: ${UPSTREAM_LINUX_HASH_SHORT}\"'..."
+
+            # Construct the grep pattern using the SHORT SHA for search.
+            GREP_PATTERN="Fixes: ${UPSTREAM_LINUX_HASH_SHORT}"
+
+            # Use git log to find commits that mention the short SHA in their "Fixes:" line,
+            # in the range from the specific commit up to HEAD.
+            # --pretty=format:"%h %s" to get short SHA and subject.
+            # --regexp-ignore-case for case-insensitive grep.
+            # We explicitly exclude the UPSTREAM_LINUX_HASH itself from the result range,
+            # as we are looking for *subsequent* fixes.
+            GIT_LOG_FIXES_OUTPUT=$(git -C linux log master \
+                             "${UPSTREAM_LINUX_HASH}..${HEAD_COMMIT_SHA}" \
+                             --grep="${GREP_PATTERN}" \
+                             --pretty=format:"%h %s" \
+                             --regexp-ignore-case)
+
+            if [ -n "$GIT_LOG_FIXES_OUTPUT" ]; then
+                printf -v PR_COMMENT_BODY_ACCUMULATOR "%s- **PR commit \`%s\` - %s**: References upstream commit \`%s\` which has the following fixes in the Linux kernel log:\n" \
+                  "$PR_COMMENT_BODY_ACCUMULATOR" "$PR_COMMIT_SHA" "$PR_COMMIT_SUBJECT" "$UPSTREAM_LINUX_HASH"
+                # Add a markdown code block for the git log output
+                printf -v PR_COMMENT_BODY_ACCUMULATOR "%s\`\`\`\n%s\n\`\`\`\n" \
+                  "$PR_COMMENT_BODY_ACCUMULATOR" "$GIT_LOG_FIXES_OUTPUT"
+            else
+                echo "No upstream fixes found for ${UPSTREAM_LINUX_HASH} in the specified range."
+                # No comment added to PR_COMMENT_BODY_ACCUMULATOR for this scenario
+            fi
+            echo "" # Newline in action logs for separation
+          done # End of for PR_COMMIT_SHA loop
+
+          # Set the output variable `PR_COMMENT_BODY` using EOF to preserve newlines for the PR comment.
+          # If no relevant messages were accumulated, this will be an empty string (after trim in JS).
+          echo "PR_COMMENT_BODY<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$PR_COMMENT_BODY_ACCUMULATOR" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+
+      - name: Post PR comment with results # Step 3: Post the collected results as a comment on the PR
+        uses: actions/github-script@v7
+        env:
+          # Pass the multi-line comment body as an environment variable to the JavaScript script.
+          COMMENT_BODY: ${{ steps.check_results.outputs.PR_COMMENT_BODY }}
+        with:
+          script: |
+            // Access the comment body directly from the environment variable and trim any whitespace
+            const commentBody = process.env.COMMENT_BODY.trim();
+            
+            // Only post a comment if there is actual content
+            if (commentBody) {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentBody
+              });
+              console.log("Posted a PR comment with the results.");
+            } else {
+              console.log("No relevant upstream fixes information to post as a PR comment.");
+            }
