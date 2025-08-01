@@ -691,6 +691,7 @@ struct perf_event {
 	int				event_caps;
 	/* The cumulative AND of all event_caps for events in this group. */
 	int				group_caps;
+	unsigned int			group_generation;
 
 	struct perf_event		*group_leader;
 	struct pmu			*pmu;
@@ -805,7 +806,6 @@ struct perf_event {
 #endif
 	struct list_head		sb_list;
 
-	RH_KABI_EXTEND(unsigned int	group_generation)
 #endif /* CONFIG_PERF_EVENTS */
 };
 
