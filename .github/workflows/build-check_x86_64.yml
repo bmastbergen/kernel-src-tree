@@ -36,10 +36,4 @@ jobs:
         run: |
           git clone --branch r9 --single-branch https://git.rockylinux.org/staging/rpms/kernel.git kernel-dist-git
           git -C kernel-dist-git reset --hard imports/r9/kernel-5.14.0-284.30.1.el9_2
-          KABI_CHECK=$(./kernel-dist-git/SOURCES/check-kabi -k ./kernel-dist-git/SOURCES/Module.kabi_x86_64 -s Module.symvers)
-          if [ $? -ne 0 ]; then
-              echo ${KABI_CHECK}
-              echo "Error: kABI check failed"
-              exit 1
-          fi
-          echo "kABI check passed"
+          ./kernel-dist-git/SOURCES/check-kabi -k ./kernel-dist-git/SOURCES/Module.kabi_x86_64 -s Module.symvers
