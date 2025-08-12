@@ -479,6 +479,7 @@ struct perf_event {
 
 	struct perf_event		*group_leader;
 	struct pmu			*pmu;
+	unsigned int			group_generation;
 
 	enum perf_event_active_state	state;
 	unsigned int			attach_state;
