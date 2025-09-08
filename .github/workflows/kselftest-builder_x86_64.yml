@@ -20,6 +20,7 @@ jobs:
         run: |
           dnf groupinstall 'Development Tools' -y
           dnf install --enablerepo=crb bc dwarves kernel-devel openssl-devel elfutils-libelf-devel -y
+          dnf install rsync -y
       - name: Checkout code
         uses: actions/checkout@v4
         with:
