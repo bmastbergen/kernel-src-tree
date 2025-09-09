@@ -2,8 +2,7 @@ name: kseltest Builder
 on:
   push:
     branches:
-      - '**'
-      - '!mainline'
+      - 'ciqlts9_4'
 
 jobs:
   kernel-build-job:
@@ -32,8 +31,8 @@ jobs:
           cp configs/kernel-x86_64-rhel.config .config
           make ARCH=x86_64 CROSS_COMPILE=./scripts/dummy-tools/ olddefconfig
           make -C tools/testing/selftests gen_tar
-      - name: Upload kselftest tarball
-        uses: actions/upload-artifact@v4
-        with:
-          name: kselftest-tarball
-          path: tools/testing/selftests/kselftest_install/kselftest-packages/kselftest.tar.gz
+      - name: Create Release and Upload Kselftest Tarball
+        run: |
+          gh release create kselftest-$(date +'%Y-%m-%d')-${{ github.sha }} tools/testing/selftests/kselftest_install/kselftest-packages/kselftest.tar.gz --notes "Kselftest build from commit ${{ github.sha }}" --latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
