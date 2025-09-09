@@ -19,7 +19,7 @@ jobs:
         run: |
           dnf groupinstall 'Development Tools' -y
           dnf install --enablerepo=crb bc dwarves kernel-devel openssl-devel elfutils-libelf-devel -y
-          dnf install rsync -y
+          dnf install alsa-lib-devel clang libcap-devel libcap-ng-devel libubsan numactl-devel rsync -y
           dnf install 'dnf-command(config-manager)' -y
           dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
           dnf install gh -y
