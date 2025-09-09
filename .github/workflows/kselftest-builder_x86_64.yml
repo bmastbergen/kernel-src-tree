@@ -20,6 +20,9 @@ jobs:
           dnf groupinstall 'Development Tools' -y
           dnf install --enablerepo=crb bc dwarves kernel-devel openssl-devel elfutils-libelf-devel -y
           dnf install rsync -y
+          dnf install 'dnf-command(config-manager)' -y
+          dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+          dnf install gh -y
       - name: Checkout code
         uses: actions/checkout@v4
         with:
