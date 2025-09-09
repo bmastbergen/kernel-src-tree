@@ -5,7 +5,7 @@ on:
       - 'ciqlts9_4'
 
 jobs:
-  kernel-build-job:
+  kselftest-build-job:
     runs-on:
       labels: ubuntu-latest
     container:
