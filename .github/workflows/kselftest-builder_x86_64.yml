@@ -36,6 +36,6 @@ jobs:
           make -C tools/testing/selftests gen_tar
       - name: Create Release and Upload Kselftest Tarball
         run: |
-          gh release create kselftest-$(date +'%Y-%m-%d')-${{ github.sha }} tools/testing/selftests/kselftest_install/kselftest-packages/kselftest.tar.gz --notes "Kselftest build from commit ${{ github.sha }}" --latest
+          gh release create kselftest-${{ github.ref_name }} tools/testing/selftests/kselftest_install/kselftest-packages/kselftest.tar.gz --notes "Kselftest build from commit ${{ github.sha }}" --latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
