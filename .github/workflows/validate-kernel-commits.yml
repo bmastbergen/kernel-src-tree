@@ -6,4 +6,4 @@ on:
 
 jobs:
   check:
-    uses: ctrliq/kernel-src-tree/.github/workflows/validate-kernel-commits.yml@main
+    uses: bmastbergen/kernel-src-tree/.github/workflows/validate-kernel-commits.yml@main
