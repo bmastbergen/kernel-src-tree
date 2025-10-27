@@ -40,7 +40,7 @@ jobs:
         working-directory: kernel-src-tree-tools
         run: |
           set +e  # Don't exit on error, we want to capture the output
-          python3 check_kernel_commits.py --repo .. --pr_branch "${{ github.head_ref }}" --base_branch "${{ github.base_ref }}" --markdown --check-cves | tee ../result.txt
+          python3 check_kernel_commits.py --repo .. --pr_branch "${{ github.head_ref }}" --base_branch "${{ github.base_ref }}" --markdown --check-cves | tee ../ckc_result.txt
           EXIT_CODE=$?
 
           # Check if the script failed
@@ -50,7 +50,7 @@ jobs:
           fi
 
           # Check for findings - run grep first, capture result
-          grep -q -v "All referenced commits exist upstream and have no Fixes: tags." ../result.txt
+          grep -q -v "All referenced commits exist upstream and have no Fixes: tags." ../ckc_result.txt
           GREP_EXIT=$?
           set -e  # Re-enable exit on error
 
@@ -70,7 +70,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if ! gh pr comment ${{ github.event.pull_request.number }} \
-            --body-file result.txt \
+            --body-file ckc_result.txt \
             --repo ${{ github.repository }}; then
             echo "❌ Failed to post check-kernel-commits comment to PR"
             exit 1
