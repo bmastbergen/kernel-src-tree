@@ -1,0 +1,9 @@
+name: Validate Kernel Commits
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check:
+    uses: bmastbergen/kernel-src-tree/.github/workflows/validate-kernel-commits.yml@main
