@@ -42,12 +42,27 @@ jobs:
           dnf install -y git
 
       - name: Check out repository
+        id: checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           ref: ${{ env.BRANCH }}
           path: ${{ env.BRANCH }}
+        continue-on-error: true
+
+      - name: Create new tracking branch
+        if: steps.checkout.outcome == 'failure'
+        run: |
+          set -e
+          echo "Branch ${BRANCH} does not exist, creating from upstream ${REMOTE_BRANCH}..."
+          git clone --bare --single-branch --branch ${REMOTE_BRANCH} ${REMOTE} ${BRANCH}
+          cd ${BRANCH}
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          git push origin ${REMOTE_BRANCH}:refs/heads/${BRANCH} --tags
+          echo "CHANGES_PUSHED=true" >> $GITHUB_ENV
+          echo "BRANCH_CREATED=true" >> $GITHUB_ENV
 
       - name: Sync kernel source
+        if: steps.checkout.outcome == 'success'
         working-directory: ./${{ env.BRANCH }}
         run: |
           set -e
