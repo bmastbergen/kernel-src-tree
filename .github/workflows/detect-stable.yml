@@ -1,0 +1,50 @@
+name: Detect New Stable Kernel
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Check for new stable
+        id: detect
+        run: |
+          python3 .github/scripts/detect_stable.py \
+            --sync-yml .github/workflows/sync.yml
+
+          if git diff --quiet .github/workflows/sync.yml; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            VERSION=$(python3 -c "
+          import json, urllib.request
+          data = json.loads(urllib.request.urlopen('https://www.kernel.org/releases.json').read())
+          v = data['latest_stable']['version'].rsplit('.', 1)[0]
+          print(v)
+          ")
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create PR
+        if: steps.detect.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.detect.outputs.version }}
+        run: |
+          BRANCH="automation/add-stable-${VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add .github/workflows/sync.yml
+          git commit -m "github actions: Add stable_${VERSION}.y to sync matrix"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "Add stable_${VERSION}.y to sync matrix" \
+            --body "The latest upstream stable kernel is ${VERSION}.y, which is not currently being synced. This PR adds it to the sync.yml matrix."
